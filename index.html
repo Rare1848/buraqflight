@@ -53,6 +53,11 @@
             70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
             100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
         }
+        /* Special Gradient for the Manual Quote Card */
+        .manual-quote-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+            border: 2px dashed #16a34a;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-green-600 to-teal-800 min-h-screen font-sans text-gray-800">
@@ -219,11 +224,15 @@
         
         // CORSPROXY.IO - Working well
         const PROXY_URL = "https://corsproxy.io/?"; 
+        
+        // Key Pakistani Airports for detecting Domestic Routes
+        const PAK_AIRPORTS = ['KHI', 'LHE', 'ISB', 'PEW', 'MUX', 'UET', 'LYP', 'SKT', 'GWD', 'TUK'];
 
         // Pagination & Flight Data State
         let allFetchedFlights = []; 
         let currentPage = 1;
         const flightsPerPage = 10;
+        let isDomesticSearch = false; // Flag for domestic routes
 
         let cachedToken = null;
         let tokenExpiry = 0;
@@ -249,8 +258,6 @@
         // --- TRIP TYPE LOGIC ---
         function setTripType(type) {
             currentTripType = type;
-            
-            // Update Tab Styles
             ['oneway', 'roundtrip', 'multicity'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (t === type) {
@@ -260,7 +267,6 @@
                 }
             });
 
-            // Toggle Fields
             const standardFields = document.getElementById('standard-fields');
             const returnDateContainer = document.getElementById('return-date-container');
             const multiCityContainer = document.getElementById('multicity-container');
@@ -280,7 +286,6 @@
                 multiCityContainer.classList.remove('hidden');
                 document.getElementById('return-date').required = false;
                 
-                // Initialize segments if empty
                 const wrapper = document.getElementById('segments-wrapper');
                 if(wrapper.children.length === 0) {
                     addSegment();
@@ -333,8 +338,6 @@
             urlObj.searchParams.append('subType', 'AIRPORT,CITY');
             urlObj.searchParams.append('keyword', keyword);
             urlObj.searchParams.append('view', 'LIGHT');
-            
-            // Adjusted for corsproxy: encodeURIComponent is safer here
             const endpoint = useProxy ? PROXY_URL + encodeURIComponent(urlObj.toString()) : urlObj.toString();
             const data = await fetchAndParse(endpoint, { method: 'GET', headers: { 'Authorization': `Bearer ${token}` } });
             return data.data || [];
@@ -364,7 +367,6 @@
             listElement.classList.remove('hidden');
         }
 
-        // Initialize Standard Autocomplete
         setupAutocomplete(document.getElementById('origin-input'), 'origin-suggestions', 'origin-loading', 'origin');
         setupAutocomplete(document.getElementById('destination-input'), 'destination-suggestions', 'destination-loading', 'destination');
 
@@ -405,7 +407,6 @@
             const now = Date.now() / 1000;
             if (cachedToken && tokenExpiry > now) return cachedToken;
             
-            // Adjusted for corsproxy: encodeURIComponent is safer here
             const endpoint = useProxy ? PROXY_URL + encodeURIComponent(AUTH_URL) : AUTH_URL;
             const params = new URLSearchParams();
             params.append('grant_type', 'client_credentials');
@@ -421,8 +422,6 @@
 
         async function fetchAndParse(url, options) {
             if (!options.headers) options.headers = {};
-            // NO X-Requested-With header to avoid 403
-            
             const response = await fetch(url, options);
             const text = await response.text();
             
@@ -456,6 +455,13 @@
                 const token = await getAccessToken(useProxy);
                 if (!token) throw new Error("Failed to retrieve access token.");
                 
+                // Check if domestic (Simple check: Origin and Dest are in Pakistan List)
+                let origin = document.getElementById('origin').value || document.getElementById('origin-input').value.toUpperCase().substring(0,3);
+                let dest = document.getElementById('destination').value || document.getElementById('destination-input').value.toUpperCase().substring(0,3);
+                
+                // Determine if this is a domestic Pakistani flight request
+                isDomesticSearch = PAK_AIRPORTS.includes(origin) && PAK_AIRPORTS.includes(dest);
+
                 let flights;
                 if (currentTripType === 'multicity') {
                     flights = await searchMultiCity(token, useProxy);
@@ -473,12 +479,11 @@
             }
         });
 
-        // 1. Standard Search (One Way / Round Trip)
+        // 1. Standard Search
         async function searchStandard(token, useProxy) {
             let origin = document.getElementById('origin').value;
             let destination = document.getElementById('destination').value;
             
-            // Fallback for manual typing
             if (!origin) origin = document.getElementById('origin-input').value.toUpperCase().substring(0,3);
             if (!destination) destination = document.getElementById('destination-input').value.toUpperCase().substring(0,3);
             
@@ -498,10 +503,9 @@
             }
             
             urlObj.searchParams.append('adults', '1');
-            urlObj.searchParams.append('max', '50'); // CHANGED FROM 10 TO 50
+            urlObj.searchParams.append('max', '50'); 
             urlObj.searchParams.append('currencyCode', 'PKR');
 
-            // Adjusted for corsproxy: encodeURIComponent
             const endpoint = useProxy ? PROXY_URL + encodeURIComponent(urlObj.toString()) : urlObj.toString();
             const data = await fetchAndParse(endpoint, { method: 'GET', headers: { 'Authorization': `Bearer ${token}` } });
             return data.data;
@@ -517,10 +521,8 @@
                 const idx = i + 1;
                 let origin = document.getElementById(`seg-origin-${idx}`).value;
                 let dest = document.getElementById(`seg-dest-${idx}`).value;
-                
                 if(!origin) origin = document.getElementById(`seg-origin-input-${idx}`).value.toUpperCase().substring(0,3);
                 if(!dest) dest = document.getElementById(`seg-dest-input-${idx}`).value.toUpperCase().substring(0,3);
-                
                 const date = document.getElementById(`seg-date-${idx}`).value;
 
                 if(origin && dest && date) {
@@ -542,15 +544,10 @@
                 sources: ["GDS"]
             };
 
-            // Adjusted for corsproxy: encodeURIComponent
             const endpoint = useProxy ? PROXY_URL + encodeURIComponent(SEARCH_URL_POST) : SEARCH_URL_POST;
-            
             const data = await fetchAndParse(endpoint, { 
                 method: 'POST', 
-                headers: { 
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
             });
             return data.data;
@@ -562,16 +559,24 @@
             allFetchedFlights = flights || [];
             currentPage = 1;
             
+            // If no flights found, show empty state (but with Manual Card if domestic)
             if (allFetchedFlights.length === 0) {
-                document.getElementById('paginationContainer').classList.add('hidden');
-                document.getElementById('resultsArea').innerHTML = `
-                    <div class="bg-white p-12 rounded-xl shadow-md text-center border border-gray-100">
-                        <div class="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-search text-3xl text-gray-400"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-700 mb-2">No Flights Found</h3>
-                        <p class="text-gray-500">We couldn't find any flights for this route and date. Try changing the dates slightly.</p>
-                    </div>`;
+                if (isDomesticSearch) {
+                    // Special case: No Amadeus flights, but domestic route -> Show ONLY manual card
+                    document.getElementById('paginationContainer').classList.add('hidden');
+                    const container = document.getElementById('resultsArea');
+                    container.innerHTML = generateManualQuoteCard();
+                } else {
+                    document.getElementById('paginationContainer').classList.add('hidden');
+                    document.getElementById('resultsArea').innerHTML = `
+                        <div class="bg-white p-12 rounded-xl shadow-md text-center border border-gray-100">
+                            <div class="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-search text-3xl text-gray-400"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-700 mb-2">No Flights Found</h3>
+                            <p class="text-gray-500">We couldn't find any flights for this route. Try changing dates.</p>
+                        </div>`;
+                }
             } else {
                 renderPage(currentPage);
                 updatePaginationControls();
@@ -582,19 +587,20 @@
             const container = document.getElementById('resultsArea');
             container.innerHTML = '';
             
-            // Scroll to top of results on page change
-            if(page > 1) {
-                container.scrollIntoView({ behavior: 'smooth' });
+            if(page > 1) { container.scrollIntoView({ behavior: 'smooth' }); }
+
+            // 1. Inject Manual Quote Card on Page 1 if Domestic
+            if (page === 1 && isDomesticSearch) {
+                container.innerHTML += generateManualQuoteCard();
             }
 
+            // 2. Render Standard Flights
             const startIndex = (page - 1) * flightsPerPage;
             const endIndex = startIndex + flightsPerPage;
             const flightsToDisplay = allFetchedFlights.slice(startIndex, endIndex);
 
             flightsToDisplay.forEach((flight) => {
-                // Find original index in master array for correct selection logic
                 const originalIndex = allFetchedFlights.indexOf(flight);
-                
                 const currency = flight.price.currency;
                 const originalPrice = parseFloat(flight.price.total);
                 const finalPrice = (originalPrice * (1 - ACTIVE_DISCOUNT_PERCENTAGE)).toFixed(0); 
@@ -609,14 +615,9 @@
                     const airlineCode = firstSeg.carrierCode;
                     const duration = itinerary.duration.replace("PT", "").toLowerCase();
                     
-                    let legTitle = "";
-                    if(currentTripType === 'roundtrip') {
-                        legTitle = iIdx === 0 ? "Outbound" : "Return";
-                    } else if (currentTripType === 'multicity') {
-                        legTitle = `Flight ${iIdx + 1}`;
-                    } else {
-                        legTitle = "Direct";
-                    }
+                    let legTitle = "Direct";
+                    if(currentTripType === 'roundtrip') legTitle = iIdx === 0 ? "Outbound" : "Return";
+                    else if (currentTripType === 'multicity') legTitle = `Flight ${iIdx + 1}`;
 
                     const airlines = { 'BA': 'British Airways', 'AA': 'American', 'EK': 'Emirates', 'QR': 'Qatar', 'PK': 'PIA', 'PA': 'Airblue', 'FZ': 'Flydubai', 'NL': 'Fly Jinnah', 'SV': 'Saudia', 'EY': 'Etihad', 'TK': 'Turkish' };
                     const airlineName = airlines[airlineCode] || airlineCode;
@@ -659,13 +660,8 @@
                             <div class="bg-gray-50 p-6 w-full md:w-48 flex flex-row md:flex-col justify-between items-center md:justify-center border-t md:border-t-0 md:border-l border-gray-100">
                                 <div class="text-right md:text-center mb-0 md:mb-4">
                                     <p class="text-xs text-red-400 line-through font-medium">PKR ${Math.round(originalPrice).toLocaleString()}</p>
-                                    <p class="text-2xl font-black text-green-600 leading-none">
-                                        ${Math.round(finalPrice).toLocaleString()}
-                                    </p>
-                                    <p class="text-[10px] text-gray-500 font-bold mt-1">PKR</p>
-                                    <div class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded shadow-sm font-bold inline-block mt-1">
-                                        -40% OFF
-                                    </div>
+                                    <p class="text-2xl font-black text-green-600 leading-none">${Math.round(finalPrice).toLocaleString()}</p>
+                                    <div class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded shadow-sm font-bold inline-block mt-1">-40% OFF</div>
                                 </div>
                                 <button onclick="selectFlight(${originalIndex}, ${finalPrice})" class="bg-green-600 hover:bg-green-700 text-white py-2.5 px-6 rounded-lg text-sm font-bold shadow-green-200 shadow-lg transition transform active:scale-95 flex items-center gap-2">
                                     <i class="fab fa-whatsapp text-lg"></i> Book
@@ -676,6 +672,40 @@
                 `;
                 container.innerHTML += card;
             });
+        }
+
+        function generateManualQuoteCard() {
+            // Get current search inputs for the message
+            let origin = document.getElementById('origin-input').value;
+            let dest = document.getElementById('destination-input').value;
+            let date = document.getElementById('date').value;
+            
+            const message = `I want to book a domestic flight.\nRoute: ${origin} to ${dest}\nDate: ${date}\nPreferred Airlines: Airblue, AirSial, Serene`;
+            const encodedMsg = encodeURIComponent(message);
+            
+            return `
+            <div class="manual-quote-card rounded-xl shadow-md p-6 mb-6 animate-fade-in">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="flex items-center mb-4 md:mb-0">
+                        <div class="bg-green-100 p-4 rounded-full mr-4 text-green-600">
+                            <i class="fas fa-headset text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">Looking for Airblue, AirSial, or Serene?</h3>
+                            <p class="text-sm text-gray-600">These low-cost fares are not available online. Chat with us for best rates!</p>
+                            <div class="flex gap-2 mt-2">
+                                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold">Airblue</span>
+                                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded font-bold">AirSial</span>
+                                <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded font-bold">Serene Air</span>
+                                <span class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-bold">Fly Jinnah</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="https://wa.me/923306265440?text=${encodedMsg}" target="_blank" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2">
+                        <i class="fab fa-whatsapp text-xl"></i> Get Manual Quote
+                    </a>
+                </div>
+            </div>`;
         }
 
         function updatePaginationControls() {
@@ -709,8 +739,6 @@
             }
         }
 
-
-        // --- UPDATED WHATSAPP BOOKING LOGIC ---
         function selectFlight(index, finalPrice) {
             const flight = allFetchedFlights[index];
             const currency = flight.price.currency;
@@ -724,33 +752,17 @@
                 const f = segs[0];
                 const l = segs[segs.length - 1];
                 const type = currentTripType === 'roundtrip' ? (idx === 0 ? "Outbound" : "Return") : `Flight ${idx + 1}`;
-                
-                flightDetailsMsg += `\n✈️ *${type}:* ${f.carrierCode} ${f.number}\n` +
-                                    `   From: ${f.departure.iataCode} (${f.departure.at.split('T')[1].substr(0,5)})\n` +
-                                    `   To:     ${l.arrival.iataCode} (${l.arrival.at.split('T')[1].substr(0,5)})\n` +
-                                    `   Date: ${f.departure.at.split('T')[0]}\n`;
+                flightDetailsMsg += `\n✈️ *${type}:* ${f.carrierCode} ${f.number}\n   From: ${f.departure.iataCode}\n   To: ${l.arrival.iataCode}\n   Date: ${f.departure.at.split('T')[0]}\n`;
             });
 
             const discountMsg = `\n🏷️ *Discount:* 40% OFF Applied\n❌ *Old Price:* ${originalPrice} ${currency}`;
-            
-            const message = 
-                `*New Booking Request* 🎫\n` +
-                `------------------` +
-                `${flightDetailsMsg}` +
-                `------------------` +
-                `${discountMsg}\n` +
-                `✅ *Final Deal:* ${formattedFinal} ${currency}\n\n` +
-                `I would like to proceed with this booking.`;
-
+            const message = `*New Booking Request* 🎫\n------------------${flightDetailsMsg}------------------${discountMsg}\n✅ *Final Deal:* ${formattedFinal} ${currency}\n\nI would like to proceed with this booking.`;
             const encodedMessage = encodeURIComponent(message);
-            
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             const baseUrl = isMobile ? 'https://api.whatsapp.com/send' : 'https://web.whatsapp.com/send';
-            
             window.open(`${baseUrl}?phone=${phoneNumber}&text=${encodedMessage}`, '_blank');
         }
 
-        // --- UTILS ---
         function showLoading(isLoading) {
             const btnLoader = document.getElementById('btnLoader');
             const btnText = document.getElementById('btnText');
@@ -767,13 +779,9 @@
             const container = document.getElementById('errorContainer');
             const text = document.getElementById('errorText');
             container.classList.remove('hidden');
-            
-            // Standard error message
             if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
                  text.innerHTML = `<strong>Network Connection Failed</strong><br>1. Ensure "Use Proxy" is checked below the search button.<br>2. The search service might be momentarily busy. Try again.`;
-            } else {
-                text.textContent = msg;
-            }
+            } else { text.textContent = msg; }
         }
 
         function clearUI() {
