@@ -189,47 +189,22 @@
         </div>
 
         <!-- Results Area -->
-        <div id="resultsArea" class="max-w-4xl mx-auto space-y-4 relative z-0 pb-12">
+        <div id="resultsArea" class="max-w-4xl mx-auto space-y-4 relative z-0 pb-6">
             <!-- Results will be injected here -->
         </div>
 
-    </div>
-
-    <!-- Footer with Contact Info -->
-    <footer class="bg-gray-900 text-white mt-auto border-t border-gray-800">
-        <div class="max-w-6xl mx-auto px-4 py-8">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                <!-- Brand Info -->
-                <div class="text-center md:text-left">
-                    <div class="flex items-center justify-center md:justify-start mb-2">
-                        <i class="fas fa-plane-departure text-green-500 text-xl mr-2"></i>
-                        <span class="text-xl font-bold tracking-tight">Buraq Travel</span>
-                    </div>
-                    <p class="text-gray-400 text-sm max-w-xs">
-                        Finding you the best flights at the best prices. Secure, fast, and reliable booking services.
-                    </p>
-                </div>
-
-                <!-- Contact Action -->
-                <div class="flex flex-col items-center md:items-end">
-                    <p class="text-gray-300 text-sm font-semibold mb-2">Facing any issues?</p>
-                    <a href="https://wa.me/923306265440" target="_blank" class="group bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-green-900/50 flex items-center gap-3">
-                        <i class="fab fa-whatsapp text-2xl group-hover:scale-110 transition-transform"></i>
-                        <div class="text-left leading-tight">
-                            <span class="block text-[10px] text-green-100 uppercase tracking-wider">Chat with us</span>
-                            <span class="block text-sm">0330 6265440</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="border-t border-gray-800 mt-8 pt-6 text-center">
-                <p class="text-gray-500 text-xs">
-                    &copy; 2025 Buraq Travel. All rights reserved.
-                </p>
-            </div>
+        <!-- Pagination Controls -->
+        <div id="paginationContainer" class="max-w-4xl mx-auto hidden flex justify-between items-center bg-white p-4 rounded-xl shadow-lg mt-6 mb-12 relative z-0">
+            <button onclick="changePage(-1)" id="prevBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-chevron-left mr-2"></i> Previous
+            </button>
+            <span id="pageIndicator" class="font-bold text-gray-700">Page 1 of 5</span>
+            <button onclick="changePage(1)" id="nextBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                Next <i class="fas fa-chevron-right ml-2"></i>
+            </button>
         </div>
-    </footer>
+
+    </div>
 
     <script>
         // --- PRODUCTION CONFIGURATION ---
@@ -245,7 +220,11 @@
         // CORSPROXY.IO - Working well
         const PROXY_URL = "https://corsproxy.io/?"; 
 
-        let currentFlights = []; 
+        // Pagination & Flight Data State
+        let allFetchedFlights = []; 
+        let currentPage = 1;
+        const flightsPerPage = 10;
+
         let cachedToken = null;
         let tokenExpiry = 0;
         let currentTripType = 'oneway';
@@ -484,7 +463,7 @@
                     flights = await searchStandard(token, useProxy);
                 }
                 
-                displayResults(flights);
+                initializeResults(flights);
 
             } catch (error) {
                 showError(error.message);
@@ -519,7 +498,7 @@
             }
             
             urlObj.searchParams.append('adults', '1');
-            urlObj.searchParams.append('max', '10');
+            urlObj.searchParams.append('max', '50'); // CHANGED FROM 10 TO 50
             urlObj.searchParams.append('currencyCode', 'PKR');
 
             // Adjusted for corsproxy: encodeURIComponent
@@ -577,13 +556,15 @@
             return data.data;
         }
 
-        // --- DISPLAY RESULTS ---
-        function displayResults(flights) {
-            const container = document.getElementById('resultsArea');
-            currentFlights = flights; 
+        // --- RESULTS AND PAGINATION LOGIC ---
+        
+        function initializeResults(flights) {
+            allFetchedFlights = flights || [];
+            currentPage = 1;
             
-            if (!flights || flights.length === 0) {
-                container.innerHTML = `
+            if (allFetchedFlights.length === 0) {
+                document.getElementById('paginationContainer').classList.add('hidden');
+                document.getElementById('resultsArea').innerHTML = `
                     <div class="bg-white p-12 rounded-xl shadow-md text-center border border-gray-100">
                         <div class="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-search text-3xl text-gray-400"></i>
@@ -591,10 +572,29 @@
                         <h3 class="text-xl font-bold text-gray-700 mb-2">No Flights Found</h3>
                         <p class="text-gray-500">We couldn't find any flights for this route and date. Try changing the dates slightly.</p>
                     </div>`;
-                return;
+            } else {
+                renderPage(currentPage);
+                updatePaginationControls();
+            }
+        }
+
+        function renderPage(page) {
+            const container = document.getElementById('resultsArea');
+            container.innerHTML = '';
+            
+            // Scroll to top of results on page change
+            if(page > 1) {
+                container.scrollIntoView({ behavior: 'smooth' });
             }
 
-            flights.forEach((flight, index) => {
+            const startIndex = (page - 1) * flightsPerPage;
+            const endIndex = startIndex + flightsPerPage;
+            const flightsToDisplay = allFetchedFlights.slice(startIndex, endIndex);
+
+            flightsToDisplay.forEach((flight) => {
+                // Find original index in master array for correct selection logic
+                const originalIndex = allFetchedFlights.indexOf(flight);
+                
                 const currency = flight.price.currency;
                 const originalPrice = parseFloat(flight.price.total);
                 const finalPrice = (originalPrice * (1 - ACTIVE_DISCOUNT_PERCENTAGE)).toFixed(0); 
@@ -651,7 +651,7 @@
                 });
 
                 const card = `
-                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg p-0 flight-card transition-all duration-300 overflow-hidden border border-gray-100">
+                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg p-0 flight-card transition-all duration-300 overflow-hidden border border-gray-100 animate-fade-in">
                         <div class="flex flex-col md:flex-row">
                             <div class="flex-1 p-6">
                                 ${legsHtml}
@@ -667,7 +667,7 @@
                                         -40% OFF
                                     </div>
                                 </div>
-                                <button onclick="selectFlight(${index}, ${finalPrice})" class="bg-green-600 hover:bg-green-700 text-white py-2.5 px-6 rounded-lg text-sm font-bold shadow-green-200 shadow-lg transition transform active:scale-95 flex items-center gap-2">
+                                <button onclick="selectFlight(${originalIndex}, ${finalPrice})" class="bg-green-600 hover:bg-green-700 text-white py-2.5 px-6 rounded-lg text-sm font-bold shadow-green-200 shadow-lg transition transform active:scale-95 flex items-center gap-2">
                                     <i class="fab fa-whatsapp text-lg"></i> Book
                                 </button>
                             </div>
@@ -678,9 +678,41 @@
             });
         }
 
+        function updatePaginationControls() {
+            const paginationContainer = document.getElementById('paginationContainer');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pageIndicator = document.getElementById('pageIndicator');
+            
+            const totalPages = Math.ceil(allFetchedFlights.length / flightsPerPage);
+
+            if (totalPages <= 1) {
+                paginationContainer.classList.add('hidden');
+                return;
+            }
+
+            paginationContainer.classList.remove('hidden');
+            pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
+
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+        }
+
+        function changePage(delta) {
+            const totalPages = Math.ceil(allFetchedFlights.length / flightsPerPage);
+            const newPage = currentPage + delta;
+
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderPage(currentPage);
+                updatePaginationControls();
+            }
+        }
+
+
         // --- UPDATED WHATSAPP BOOKING LOGIC ---
         function selectFlight(index, finalPrice) {
-            const flight = currentFlights[index];
+            const flight = allFetchedFlights[index];
             const currency = flight.price.currency;
             const originalPrice = Math.round(flight.price.total).toLocaleString();
             const formattedFinal = Math.round(finalPrice).toLocaleString();
@@ -712,9 +744,6 @@
 
             const encodedMessage = encodeURIComponent(message);
             
-            // SMART LINK GENERATION:
-            // If on mobile device -> use api.whatsapp.com (opens app directly)
-            // If on desktop -> use web.whatsapp.com (forces web interface which handles text better)
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             const baseUrl = isMobile ? 'https://api.whatsapp.com/send' : 'https://web.whatsapp.com/send';
             
@@ -749,6 +778,7 @@
 
         function clearUI() {
             document.getElementById('resultsArea').innerHTML = '';
+            document.getElementById('paginationContainer').classList.add('hidden');
             document.getElementById('errorContainer').classList.add('hidden');
         }
     </script>
