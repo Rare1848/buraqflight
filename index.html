@@ -477,7 +477,7 @@
                 console.log(`Calling Local Server for ${origin} -> ${destination}...`);
                 
                 // Fetch from Flask (ensure server.py is running on port 5000)
-                const localResponse = await fetch(`http://127.0.0.1:5000/search_flights?origin=${origin}&destination=${destination}&date=${date}`);
+                const localResponse = await fetch(`https://flight-scraper-api.onrender.com/search_flights?origin=${origin}...`);
                 const localData = await localResponse.json();
 
                 if (localData && localData.length > 0) {
