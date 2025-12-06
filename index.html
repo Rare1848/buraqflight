@@ -53,16 +53,10 @@
             70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
             100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
         }
-        /* Special Gradient for the Manual Quote Card */
-        .manual-quote-card {
-            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
-            border: 2px dashed #16a34a;
-        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-green-600 to-teal-800 min-h-screen font-sans text-gray-800">
 
-    <!-- Navigation -->
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
@@ -82,10 +76,8 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container mx-auto px-4 py-8">
         
-        <!-- Search Box -->
         <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-visible p-6 mb-8 relative z-40">
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h2 class="text-2xl font-bold text-gray-700">Find your next flight</h2>
@@ -94,7 +86,6 @@
                 </div>
             </div>
 
-            <!-- Trip Type Tabs -->
             <div class="flex space-x-2 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
                 <button type="button" onclick="setTripType('oneway')" id="tab-oneway" class="tab-active px-4 py-2 rounded-md transition text-sm">One Way</button>
                 <button type="button" onclick="setTripType('roundtrip')" id="tab-roundtrip" class="tab-inactive px-4 py-2 rounded-md transition text-sm">Round Trip</button>
@@ -103,9 +94,7 @@
             
             <form id="searchForm" class="space-y-4" autocomplete="off">
                 
-                <!-- Standard One Way / Round Trip Fields -->
                 <div id="standard-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Origin -->
                     <div class="relative group">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">From</label>
                         <div class="relative">
@@ -121,7 +110,6 @@
                         <ul id="origin-suggestions" class="suggestions-list absolute w-full bg-white border border-gray-200 rounded-b-lg shadow-xl max-h-60 overflow-y-auto hidden z-50 mt-1"></ul>
                     </div>
 
-                    <!-- Destination -->
                     <div class="relative group">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">To</label>
                         <div class="relative">
@@ -137,7 +125,6 @@
                         <ul id="destination-suggestions" class="suggestions-list absolute w-full bg-white border border-gray-200 rounded-b-lg shadow-xl max-h-60 overflow-y-auto hidden z-50 mt-1"></ul>
                     </div>
 
-                    <!-- Departure Date -->
                     <div class="relative">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Departure</label>
                         <div class="relative">
@@ -146,7 +133,6 @@
                         </div>
                     </div>
 
-                    <!-- Return Date (Hidden for One Way) -->
                     <div class="relative hidden" id="return-date-container">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Return</label>
                         <div class="relative">
@@ -156,11 +142,9 @@
                     </div>
                 </div>
 
-                <!-- Multi-City Container (Hidden by default) -->
                 <div id="multicity-container" class="hidden space-y-4">
                     <div id="segments-wrapper" class="space-y-3">
-                        <!-- Segments will be injected here via JS -->
-                    </div>
+                        </div>
                     <button type="button" onclick="addSegment()" class="text-sm text-green-600 font-bold hover:text-green-800 flex items-center bg-green-50 px-3 py-2 rounded-lg border border-green-100 transition-colors">
                         <i class="fas fa-plus-circle mr-1"></i> Add Another Flight
                     </button>
@@ -182,7 +166,6 @@
             </form>
         </div>
 
-        <!-- Error Message Container -->
         <div id="errorContainer" class="max-w-4xl mx-auto hidden mb-6 relative z-0">
             <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm flex items-start" role="alert">
                 <i class="fas fa-exclamation-circle mt-1 mr-3 text-red-500"></i>
@@ -193,21 +176,8 @@
             </div>
         </div>
 
-        <!-- Results Area -->
-        <div id="resultsArea" class="max-w-4xl mx-auto space-y-4 relative z-0 pb-6">
-            <!-- Results will be injected here -->
-        </div>
-
-        <!-- Pagination Controls -->
-        <div id="paginationContainer" class="max-w-4xl mx-auto hidden flex justify-between items-center bg-white p-4 rounded-xl shadow-lg mt-6 mb-12 relative z-0">
-            <button onclick="changePage(-1)" id="prevBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-                <i class="fas fa-chevron-left mr-2"></i> Previous
-            </button>
-            <span id="pageIndicator" class="font-bold text-gray-700">Page 1 of 5</span>
-            <button onclick="changePage(1)" id="nextBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-                Next <i class="fas fa-chevron-right ml-2"></i>
-            </button>
-        </div>
+        <div id="resultsArea" class="max-w-4xl mx-auto space-y-4 relative z-0 pb-12">
+            </div>
 
     </div>
 
@@ -224,16 +194,8 @@
         
         // CORSPROXY.IO - Working well
         const PROXY_URL = "https://corsproxy.io/?"; 
-        
-        // Key Pakistani Airports for detecting Domestic Routes
-        const PAK_AIRPORTS = ['KHI', 'LHE', 'ISB', 'PEW', 'MUX', 'UET', 'LYP', 'SKT', 'GWD', 'TUK'];
 
-        // Pagination & Flight Data State
-        let allFetchedFlights = []; 
-        let currentPage = 1;
-        const flightsPerPage = 10;
-        let isDomesticSearch = false; // Flag for domestic routes
-
+        let currentFlights = []; 
         let cachedToken = null;
         let tokenExpiry = 0;
         let currentTripType = 'oneway';
@@ -258,6 +220,8 @@
         // --- TRIP TYPE LOGIC ---
         function setTripType(type) {
             currentTripType = type;
+            
+            // Update Tab Styles
             ['oneway', 'roundtrip', 'multicity'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (t === type) {
@@ -267,6 +231,7 @@
                 }
             });
 
+            // Toggle Fields
             const standardFields = document.getElementById('standard-fields');
             const returnDateContainer = document.getElementById('return-date-container');
             const multiCityContainer = document.getElementById('multicity-container');
@@ -286,6 +251,7 @@
                 multiCityContainer.classList.remove('hidden');
                 document.getElementById('return-date').required = false;
                 
+                // Initialize segments if empty
                 const wrapper = document.getElementById('segments-wrapper');
                 if(wrapper.children.length === 0) {
                     addSegment();
@@ -338,6 +304,7 @@
             urlObj.searchParams.append('subType', 'AIRPORT,CITY');
             urlObj.searchParams.append('keyword', keyword);
             urlObj.searchParams.append('view', 'LIGHT');
+            
             const endpoint = useProxy ? PROXY_URL + encodeURIComponent(urlObj.toString()) : urlObj.toString();
             const data = await fetchAndParse(endpoint, { method: 'GET', headers: { 'Authorization': `Bearer ${token}` } });
             return data.data || [];
@@ -367,6 +334,7 @@
             listElement.classList.remove('hidden');
         }
 
+        // Initialize Standard Autocomplete
         setupAutocomplete(document.getElementById('origin-input'), 'origin-suggestions', 'origin-loading', 'origin');
         setupAutocomplete(document.getElementById('destination-input'), 'destination-suggestions', 'destination-loading', 'destination');
 
@@ -455,13 +423,6 @@
                 const token = await getAccessToken(useProxy);
                 if (!token) throw new Error("Failed to retrieve access token.");
                 
-                // Check if domestic (Simple check: Origin and Dest are in Pakistan List)
-                let origin = document.getElementById('origin').value || document.getElementById('origin-input').value.toUpperCase().substring(0,3);
-                let dest = document.getElementById('destination').value || document.getElementById('destination-input').value.toUpperCase().substring(0,3);
-                
-                // Determine if this is a domestic Pakistani flight request
-                isDomesticSearch = PAK_AIRPORTS.includes(origin) && PAK_AIRPORTS.includes(dest);
-
                 let flights;
                 if (currentTripType === 'multicity') {
                     flights = await searchMultiCity(token, useProxy);
@@ -469,7 +430,7 @@
                     flights = await searchStandard(token, useProxy);
                 }
                 
-                initializeResults(flights);
+                displayResults(flights);
 
             } catch (error) {
                 showError(error.message);
@@ -479,11 +440,12 @@
             }
         });
 
-        // 1. Standard Search
+        // 1. Standard Search (One Way / Round Trip)
         async function searchStandard(token, useProxy) {
             let origin = document.getElementById('origin').value;
             let destination = document.getElementById('destination').value;
             
+            // Fallback for manual typing
             if (!origin) origin = document.getElementById('origin-input').value.toUpperCase().substring(0,3);
             if (!destination) destination = document.getElementById('destination-input').value.toUpperCase().substring(0,3);
             
@@ -503,11 +465,63 @@
             }
             
             urlObj.searchParams.append('adults', '1');
-            urlObj.searchParams.append('max', '50'); 
+            urlObj.searchParams.append('max', '10');
             urlObj.searchParams.append('currencyCode', 'PKR');
 
+            // --- AMADEUS API CALL ---
             const endpoint = useProxy ? PROXY_URL + encodeURIComponent(urlObj.toString()) : urlObj.toString();
             const data = await fetchAndParse(endpoint, { method: 'GET', headers: { 'Authorization': `Bearer ${token}` } });
+            
+            // --- INTEGRATION: Call Local Python Server (Airblue/Fly Jinnah) ---
+            try {
+                console.log(`Calling Local Server for ${origin} -> ${destination}...`);
+                
+                // Fetch from Flask (ensure server.py is running on port 5000)
+                const localResponse = await fetch(`http://127.0.0.1:5000/search_flights?origin=${origin}&destination=${destination}&date=${date}`);
+                const localData = await localResponse.json();
+
+                if (localData && localData.length > 0) {
+                    console.log("Local Scraper Data Received:", localData);
+
+                    // Map local data (Airblue) to Amadeus API structure so UI can read it
+                    const mappedLocalFlights = localData.map(flight => {
+                        return {
+                            id: "local_" + Math.random().toString(36).substr(2, 9),
+                            source: "SCRAPER", 
+                            price: {
+                                currency: flight.currency || "PKR",
+                                // If price is "Check Site", we set it to 0 for calculation safety
+                                total: flight.price !== "Check Site" ? flight.price.replace(/[^0-9.]/g, '') : "0", 
+                                grandTotal: flight.price !== "Check Site" ? flight.price.replace(/[^0-9.]/g, '') : "0"
+                            },
+                            itineraries: [{
+                                duration: "PT2H", // Placeholder duration
+                                segments: [{
+                                    carrierCode: flight.airline === "Airblue" ? "PA" : "9P",
+                                    number: flight.flight_no.replace("PA-", "").replace("9P-", ""),
+                                    departure: { 
+                                        iataCode: flight.origin, 
+                                        at: `2025-12-06T${flight.time}:00` 
+                                    },
+                                    arrival: { 
+                                        iataCode: flight.destination !== "N/A" ? flight.destination : destination, 
+                                        at: `2025-12-06T${parseInt(flight.time)+2}:00` // Dummy arrival
+                                    }
+                                }]
+                            }]
+                        };
+                    });
+
+                    // Merge with API data
+                    if (!data.data) { data.data = []; }
+                    data.data = [...mappedLocalFlights, ...data.data];
+                }
+            } catch (err) {
+                console.warn("Local Python server not reachable or error parsing:", err);
+                // We do NOT throw here, so Amadeus results still show even if local fails
+            }
+            // ------------------------------------------------------------------
+
             return data.data;
         }
 
@@ -521,8 +535,10 @@
                 const idx = i + 1;
                 let origin = document.getElementById(`seg-origin-${idx}`).value;
                 let dest = document.getElementById(`seg-dest-${idx}`).value;
+                
                 if(!origin) origin = document.getElementById(`seg-origin-input-${idx}`).value.toUpperCase().substring(0,3);
                 if(!dest) dest = document.getElementById(`seg-dest-input-${idx}`).value.toUpperCase().substring(0,3);
+                
                 const date = document.getElementById(`seg-date-${idx}`).value;
 
                 if(origin && dest && date) {
@@ -547,63 +563,42 @@
             const endpoint = useProxy ? PROXY_URL + encodeURIComponent(SEARCH_URL_POST) : SEARCH_URL_POST;
             const data = await fetchAndParse(endpoint, { 
                 method: 'POST', 
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(requestBody)
             });
             return data.data;
         }
 
-        // --- RESULTS AND PAGINATION LOGIC ---
-        
-        function initializeResults(flights) {
-            allFetchedFlights = flights || [];
-            currentPage = 1;
-            
-            // If no flights found, show empty state (but with Manual Card if domestic)
-            if (allFetchedFlights.length === 0) {
-                if (isDomesticSearch) {
-                    // Special case: No Amadeus flights, but domestic route -> Show ONLY manual card
-                    document.getElementById('paginationContainer').classList.add('hidden');
-                    const container = document.getElementById('resultsArea');
-                    container.innerHTML = generateManualQuoteCard();
-                } else {
-                    document.getElementById('paginationContainer').classList.add('hidden');
-                    document.getElementById('resultsArea').innerHTML = `
-                        <div class="bg-white p-12 rounded-xl shadow-md text-center border border-gray-100">
-                            <div class="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-search text-3xl text-gray-400"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-700 mb-2">No Flights Found</h3>
-                            <p class="text-gray-500">We couldn't find any flights for this route. Try changing dates.</p>
-                        </div>`;
-                }
-            } else {
-                renderPage(currentPage);
-                updatePaginationControls();
-            }
-        }
-
-        function renderPage(page) {
+        // --- DISPLAY RESULTS ---
+        function displayResults(flights) {
             const container = document.getElementById('resultsArea');
-            container.innerHTML = '';
+            currentFlights = flights; 
             
-            if(page > 1) { container.scrollIntoView({ behavior: 'smooth' }); }
-
-            // 1. Inject Manual Quote Card on Page 1 if Domestic
-            if (page === 1 && isDomesticSearch) {
-                container.innerHTML += generateManualQuoteCard();
+            if (!flights || flights.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-12 rounded-xl shadow-md text-center border border-gray-100">
+                        <div class="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-search text-3xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-700 mb-2">No Flights Found</h3>
+                        <p class="text-gray-500">We couldn't find any flights for this route and date. Try changing the dates slightly.</p>
+                    </div>`;
+                return;
             }
 
-            // 2. Render Standard Flights
-            const startIndex = (page - 1) * flightsPerPage;
-            const endIndex = startIndex + flightsPerPage;
-            const flightsToDisplay = allFetchedFlights.slice(startIndex, endIndex);
-
-            flightsToDisplay.forEach((flight) => {
-                const originalIndex = allFetchedFlights.indexOf(flight);
+            flights.forEach((flight, index) => {
                 const currency = flight.price.currency;
                 const originalPrice = parseFloat(flight.price.total);
+                // Calculate Discounted Price
                 const finalPrice = (originalPrice * (1 - ACTIVE_DISCOUNT_PERCENTAGE)).toFixed(0); 
+                
+                // Handle Scraper "Check Site" display logic
+                const isScraper = flight.source === "SCRAPER";
+                const displayPrice = originalPrice > 0 ? `PKR ${Math.round(finalPrice).toLocaleString()}` : "Check Site";
+                const displayOriginal = originalPrice > 0 ? `PKR ${Math.round(originalPrice).toLocaleString()}` : "";
 
                 let legsHtml = "";
                 const itineraries = flight.itineraries;
@@ -615,11 +610,16 @@
                     const airlineCode = firstSeg.carrierCode;
                     const duration = itinerary.duration.replace("PT", "").toLowerCase();
                     
-                    let legTitle = "Direct";
-                    if(currentTripType === 'roundtrip') legTitle = iIdx === 0 ? "Outbound" : "Return";
-                    else if (currentTripType === 'multicity') legTitle = `Flight ${iIdx + 1}`;
+                    let legTitle = "";
+                    if(currentTripType === 'roundtrip') {
+                        legTitle = iIdx === 0 ? "Outbound" : "Return";
+                    } else if (currentTripType === 'multicity') {
+                        legTitle = `Flight ${iIdx + 1}`;
+                    } else {
+                        legTitle = "Direct";
+                    }
 
-                    const airlines = { 'BA': 'British Airways', 'AA': 'American', 'EK': 'Emirates', 'QR': 'Qatar', 'PK': 'PIA', 'PA': 'Airblue', 'FZ': 'Flydubai', 'NL': 'Fly Jinnah', 'SV': 'Saudia', 'EY': 'Etihad', 'TK': 'Turkish' };
+                    const airlines = { 'BA': 'British Airways', 'AA': 'American', 'EK': 'Emirates', 'QR': 'Qatar', 'PK': 'PIA', 'PA': 'Airblue', '9P': 'Fly Jinnah', 'FZ': 'Flydubai', 'NL': 'Fly Jinnah', 'SV': 'Saudia', 'EY': 'Etihad', 'TK': 'Turkish' };
                     const airlineName = airlines[airlineCode] || airlineCode;
 
                     legsHtml += `
@@ -652,18 +652,24 @@
                 });
 
                 const card = `
-                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg p-0 flight-card transition-all duration-300 overflow-hidden border border-gray-100 animate-fade-in">
+                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg p-0 flight-card transition-all duration-300 overflow-hidden border border-gray-100">
                         <div class="flex flex-col md:flex-row">
                             <div class="flex-1 p-6">
                                 ${legsHtml}
                             </div>
                             <div class="bg-gray-50 p-6 w-full md:w-48 flex flex-row md:flex-col justify-between items-center md:justify-center border-t md:border-t-0 md:border-l border-gray-100">
                                 <div class="text-right md:text-center mb-0 md:mb-4">
-                                    <p class="text-xs text-red-400 line-through font-medium">PKR ${Math.round(originalPrice).toLocaleString()}</p>
-                                    <p class="text-2xl font-black text-green-600 leading-none">${Math.round(finalPrice).toLocaleString()}</p>
-                                    <div class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded shadow-sm font-bold inline-block mt-1">-40% OFF</div>
+                                    ${displayOriginal ? `<p class="text-xs text-red-400 line-through font-medium">${displayOriginal}</p>` : ''}
+                                    <p class="text-2xl font-black text-green-600 leading-none">
+                                        ${displayPrice.replace("PKR ", "")}
+                                    </p>
+                                    <p class="text-[10px] text-gray-500 font-bold mt-1">PKR</p>
+                                    ${displayOriginal ? `
+                                    <div class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded shadow-sm font-bold inline-block mt-1">
+                                        -40% OFF
+                                    </div>` : ''}
                                 </div>
-                                <button onclick="selectFlight(${originalIndex}, ${finalPrice})" class="bg-green-600 hover:bg-green-700 text-white py-2.5 px-6 rounded-lg text-sm font-bold shadow-green-200 shadow-lg transition transform active:scale-95 flex items-center gap-2">
+                                <button onclick="selectFlight(${index}, ${finalPrice})" class="bg-green-600 hover:bg-green-700 text-white py-2.5 px-6 rounded-lg text-sm font-bold shadow-green-200 shadow-lg transition transform active:scale-95 flex items-center gap-2">
                                     <i class="fab fa-whatsapp text-lg"></i> Book
                                 </button>
                             </div>
@@ -674,73 +680,9 @@
             });
         }
 
-        function generateManualQuoteCard() {
-            // Get current search inputs for the message
-            let origin = document.getElementById('origin-input').value;
-            let dest = document.getElementById('destination-input').value;
-            let date = document.getElementById('date').value;
-            
-            const message = `I want to book a domestic flight.\nRoute: ${origin} to ${dest}\nDate: ${date}\nPreferred Airlines: Airblue, AirSial, Serene`;
-            const encodedMsg = encodeURIComponent(message);
-            
-            return `
-            <div class="manual-quote-card rounded-xl shadow-md p-6 mb-6 animate-fade-in">
-                <div class="flex flex-col md:flex-row items-center justify-between">
-                    <div class="flex items-center mb-4 md:mb-0">
-                        <div class="bg-green-100 p-4 rounded-full mr-4 text-green-600">
-                            <i class="fas fa-headset text-2xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-800">Looking for Airblue, AirSial, or Serene?</h3>
-                            <p class="text-sm text-gray-600">These low-cost fares are not available online. Chat with us for best rates!</p>
-                            <div class="flex gap-2 mt-2">
-                                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold">Airblue</span>
-                                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded font-bold">AirSial</span>
-                                <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded font-bold">Serene Air</span>
-                                <span class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-bold">Fly Jinnah</span>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="https://wa.me/923306265440?text=${encodedMsg}" target="_blank" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2">
-                        <i class="fab fa-whatsapp text-xl"></i> Get Manual Quote
-                    </a>
-                </div>
-            </div>`;
-        }
-
-        function updatePaginationControls() {
-            const paginationContainer = document.getElementById('paginationContainer');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            const pageIndicator = document.getElementById('pageIndicator');
-            
-            const totalPages = Math.ceil(allFetchedFlights.length / flightsPerPage);
-
-            if (totalPages <= 1) {
-                paginationContainer.classList.add('hidden');
-                return;
-            }
-
-            paginationContainer.classList.remove('hidden');
-            pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
-
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages;
-        }
-
-        function changePage(delta) {
-            const totalPages = Math.ceil(allFetchedFlights.length / flightsPerPage);
-            const newPage = currentPage + delta;
-
-            if (newPage >= 1 && newPage <= totalPages) {
-                currentPage = newPage;
-                renderPage(currentPage);
-                updatePaginationControls();
-            }
-        }
-
+        // --- UPDATED WHATSAPP BOOKING LOGIC ---
         function selectFlight(index, finalPrice) {
-            const flight = allFetchedFlights[index];
+            const flight = currentFlights[index];
             const currency = flight.price.currency;
             const originalPrice = Math.round(flight.price.total).toLocaleString();
             const formattedFinal = Math.round(finalPrice).toLocaleString();
@@ -752,26 +694,72 @@
                 const f = segs[0];
                 const l = segs[segs.length - 1];
                 const type = currentTripType === 'roundtrip' ? (idx === 0 ? "Outbound" : "Return") : `Flight ${idx + 1}`;
-                flightDetailsMsg += `\n✈️ *${type}:* ${f.carrierCode} ${f.number}\n   From: ${f.departure.iataCode}\n   To: ${l.arrival.iataCode}\n   Date: ${f.departure.at.split('T')[0]}\n`;
+                
+                flightDetailsMsg += `\n✈️ *${type}:* ${f.carrierCode} ${f.number}\n` +
+                                    `   From: ${f.departure.iataCode} (${f.departure.at.split('T')[1].substr(0,5)})\n` +
+                                    `   To:     ${l.arrival.iataCode} (${l.arrival.at.split('T')[1].substr(0,5)})\n` +
+                                    `   Date: ${f.departure.at.split('T')[0]}\n`;
             });
 
             const discountMsg = `\n🏷️ *Discount:* 40% OFF Applied\n❌ *Old Price:* ${originalPrice} ${currency}`;
-            const message = `*New Booking Request* 🎫\n------------------${flightDetailsMsg}------------------${discountMsg}\n✅ *Final Deal:* ${formattedFinal} ${currency}\n\nI would like to proceed with this booking.`;
+            
+            const message = 
+                `*New Booking Request* 🎫\n` +
+                `------------------` +
+                `${flightDetailsMsg}` +
+                `------------------` +
+                `${discountMsg}\n` +
+                `✅ *Final Deal:* ${formattedFinal} ${currency}\n\n` +
+                `I would like to proceed with this booking.`;
+
             const encodedMessage = encodeURIComponent(message);
+            
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             const baseUrl = isMobile ? 'https://api.whatsapp.com/send' : 'https://web.whatsapp.com/send';
+            
             window.open(`${baseUrl}?phone=${phoneNumber}&text=${encodedMessage}`, '_blank');
         }
 
+        // --- UPDATED LOADING WITH COUNTDOWN ---
         function showLoading(isLoading) {
             const btnLoader = document.getElementById('btnLoader');
             const btnText = document.getElementById('btnText');
+            const searchButton = document.querySelector("button[type='submit']"); // Get button to disable it
+            
             if (isLoading) {
-                btnLoader.classList.remove('hidden');
-                btnText.textContent = "Searching...";
-            } else {
-                btnLoader.classList.add('hidden');
-                btnText.textContent = "Search Flights";
+                // 1. Show Loader & Disable Button
+               btnLoader.classList.remove('hidden');
+               searchButton.disabled = true;
+               searchButton.classList.add('opacity-75', 'cursor-not-allowed');
+            
+               // 2. Start Countdown (Estimated 20 Seconds)
+                let timeLeft = 20;
+                btnText.textContent = `Searching... (${timeLeft}s)`;
+
+                // Clear any old timer just in case
+                if (searchTimer) clearInterval(searchTimer);
+
+                searchTimer = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft > 0) {
+                        btnText.textContent = `Searching... (${timeLeft}s)`;
+                        } else if (timeLeft === 0) {
+                            btnText.textContent = "Finalizing results...";
+                            } else {
+                                // If it takes longer than 20s, keep showing "Finalizing"
+                                clearInterval(searchTimer);
+                            }
+                        }, 1000);
+                    } else {
+                        // 3. Stop Loading & Reset Button
+                        btnLoader.classList.add('hidden');
+                        btnText.textContent = "Search Flights";
+                        searchButton.disabled = false;
+                        searchButton.classList.remove('opacity-75', 'cursor-not-allowed');
+
+                        // Stop the timer
+                        if (searchTimer) clearInterval(searchTimer);
+
             }
         }
 
@@ -779,16 +767,19 @@
             const container = document.getElementById('errorContainer');
             const text = document.getElementById('errorText');
             container.classList.remove('hidden');
+            
             if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
-                 text.innerHTML = `<strong>Network Connection Failed</strong><br>1. Ensure "Use Proxy" is checked below the search button.<br>2. The search service might be momentarily busy. Try again.`;
-            } else { text.textContent = msg; }
+                 text.innerHTML = `<strong>Network Connection Failed</strong><br>1. Ensure "Use Proxy" is checked.<br>2. Ensure "server.py" is running if searching Airblue.<br>3. Try again.`;
+            } else {
+                text.textContent = msg;
+            }
         }
 
         function clearUI() {
             document.getElementById('resultsArea').innerHTML = '';
-            document.getElementById('paginationContainer').classList.add('hidden');
             document.getElementById('errorContainer').classList.add('hidden');
         }
+        let searchTimer = null; // <--- Add this line to store the timer ID
     </script>
 </body>
 </html>
