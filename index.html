@@ -39,24 +39,39 @@
             background-color: #f3f4f6; /* gray-100 */
             color: #4b5563; /* gray-600 */
         }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #4ade80;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse-animation 2s infinite;
+        }
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-green-600 to-teal-800 min-h-screen font-sans text-gray-800">
 
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between">
-                <div class="flex space-x-7">
-                    <div>
-                        <a href="#" class="flex items-center py-4 px-2">
-                            <i class="fas fa-plane-departure text-green-600 text-2xl mr-2"></i>
-                            <span class="font-bold text-gray-600 text-lg">Buraq Travel</span>
-                        </a>
-                    </div>
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="#" class="flex items-center">
+                        <i class="fas fa-plane-departure text-green-600 text-2xl mr-2"></i>
+                        <span class="font-bold text-gray-600 text-xl tracking-tight">Buraq Travel</span>
+                    </a>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <span class="text-xs text-white bg-green-600 rounded px-2 py-1 font-bold">Production Environment</span>
+                    <div class="flex items-center bg-gray-800 text-white text-xs rounded-full px-3 py-1 border border-gray-600 shadow-sm">
+                        <span class="pulse-dot"></span>
+                        <span class="font-semibold tracking-wide">Production Active</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -66,19 +81,19 @@
     <div class="container mx-auto px-4 py-8">
         
         <!-- Search Box -->
-        <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-visible p-6 mb-8 relative z-50">
+        <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-visible p-6 mb-8 relative z-40">
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h2 class="text-2xl font-bold text-gray-700">Find your next flight</h2>
-                <div class="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-full border border-red-200 font-bold animate-pulse">
+                <div class="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-full border border-red-200 font-bold animate-pulse shadow-sm">
                     <i class="fas fa-fire mr-1"></i> FLAT 40% OFF EVERYTHING
                 </div>
             </div>
 
             <!-- Trip Type Tabs -->
-            <div class="flex space-x-2 mb-6">
-                <button type="button" onclick="setTripType('oneway')" id="tab-oneway" class="tab-active px-4 py-2 rounded-lg transition text-sm">One Way</button>
-                <button type="button" onclick="setTripType('roundtrip')" id="tab-roundtrip" class="tab-inactive px-4 py-2 rounded-lg transition text-sm">Round Trip</button>
-                <button type="button" onclick="setTripType('multicity')" id="tab-multicity" class="tab-inactive px-4 py-2 rounded-lg transition text-sm">Multi-City</button>
+            <div class="flex space-x-2 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
+                <button type="button" onclick="setTripType('oneway')" id="tab-oneway" class="tab-active px-4 py-2 rounded-md transition text-sm">One Way</button>
+                <button type="button" onclick="setTripType('roundtrip')" id="tab-roundtrip" class="tab-inactive px-4 py-2 rounded-md transition text-sm">Round Trip</button>
+                <button type="button" onclick="setTripType('multicity')" id="tab-multicity" class="tab-inactive px-4 py-2 rounded-md transition text-sm">Multi-City</button>
             </div>
             
             <form id="searchForm" class="space-y-4" autocomplete="off">
@@ -87,45 +102,51 @@
                 <div id="standard-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Origin -->
                     <div class="relative group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">From</label>
                         <div class="relative">
                             <i class="fas fa-plane-departure absolute left-3 top-3 text-gray-400"></i>
-                            <input type="text" id="origin-input" placeholder="City (e.g. Islamabad)" 
-                                   class="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 uppercase">
+                            <input type="text" id="origin-input" placeholder="City or Airport" 
+                                   class="pl-10 pr-8 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 uppercase font-semibold text-gray-700 transition-shadow">
                             <input type="hidden" id="origin" value="">
-                            <div id="origin-loading" class="absolute right-3 top-3 hidden"><i class="fas fa-spinner fa-spin text-green-600"></i></div>
+                            <button type="button" onclick="clearInput('origin-input', 'origin')" class="absolute right-2 top-2.5 text-gray-300 hover:text-gray-500">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                            <div id="origin-loading" class="absolute right-8 top-3 hidden"><i class="fas fa-spinner fa-spin text-green-600"></i></div>
                         </div>
                         <ul id="origin-suggestions" class="suggestions-list absolute w-full bg-white border border-gray-200 rounded-b-lg shadow-xl max-h-60 overflow-y-auto hidden z-50 mt-1"></ul>
                     </div>
 
                     <!-- Destination -->
                     <div class="relative group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">To</label>
                         <div class="relative">
                             <i class="fas fa-plane-arrival absolute left-3 top-3 text-gray-400"></i>
-                            <input type="text" id="destination-input" placeholder="City (e.g. Karachi)" 
-                                   class="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 uppercase">
+                            <input type="text" id="destination-input" placeholder="City or Airport" 
+                                   class="pl-10 pr-8 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 uppercase font-semibold text-gray-700 transition-shadow">
                             <input type="hidden" id="destination" value="">
-                            <div id="destination-loading" class="absolute right-3 top-3 hidden"><i class="fas fa-spinner fa-spin text-green-600"></i></div>
+                             <button type="button" onclick="clearInput('destination-input', 'destination')" class="absolute right-2 top-2.5 text-gray-300 hover:text-gray-500">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                            <div id="destination-loading" class="absolute right-8 top-3 hidden"><i class="fas fa-spinner fa-spin text-green-600"></i></div>
                         </div>
                         <ul id="destination-suggestions" class="suggestions-list absolute w-full bg-white border border-gray-200 rounded-b-lg shadow-xl max-h-60 overflow-y-auto hidden z-50 mt-1"></ul>
                     </div>
 
                     <!-- Departure Date -->
                     <div class="relative">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Departure Date</label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Departure</label>
                         <div class="relative">
                             <i class="far fa-calendar-alt absolute left-3 top-3 text-gray-400"></i>
-                            <input type="date" id="date" class="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                            <input type="date" id="date" class="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium text-gray-700" required>
                         </div>
                     </div>
 
                     <!-- Return Date (Hidden for One Way) -->
                     <div class="relative hidden" id="return-date-container">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Return Date</label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Return</label>
                         <div class="relative">
                             <i class="far fa-calendar-check absolute left-3 top-3 text-gray-400"></i>
-                            <input type="date" id="return-date" class="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <input type="date" id="return-date" class="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium text-gray-700">
                         </div>
                     </div>
                 </div>
@@ -135,19 +156,20 @@
                     <div id="segments-wrapper" class="space-y-3">
                         <!-- Segments will be injected here via JS -->
                     </div>
-                    <button type="button" onclick="addSegment()" class="text-sm text-green-600 font-bold hover:text-green-800 flex items-center">
+                    <button type="button" onclick="addSegment()" class="text-sm text-green-600 font-bold hover:text-green-800 flex items-center bg-green-50 px-3 py-2 rounded-lg border border-green-100 transition-colors">
                         <i class="fas fa-plus-circle mr-1"></i> Add Another Flight
                     </button>
                 </div>
 
-                <div class="flex items-center justify-between pt-4 border-t border-gray-100 mt-4">
-                    <div class="flex items-center">
-                        <input id="useProxy" type="checkbox" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" checked>
-                        <label for="useProxy" class="ml-2 block text-sm text-gray-900">
-                            Use Proxy (Fixes Errors)
+                <div class="flex flex-col md:flex-row items-center justify-between pt-6 border-t border-gray-100 mt-6 gap-4">
+                    <div class="flex items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+                        <input id="useProxy" type="checkbox" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded cursor-pointer" checked>
+                        <label for="useProxy" class="ml-2 block text-sm text-gray-600 cursor-pointer select-none">
+                            Use Proxy (Required for Web App)
                         </label>
                     </div>
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 flex items-center">
+                    <button type="submit" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-lg shadow-lg hover:shadow-xl transition duration-300 flex items-center justify-center transform hover:-translate-y-0.5">
+                        <i class="fas fa-search mr-2"></i>
                         <span id="btnText">Search Flights</span>
                         <div id="btnLoader" class="loader ml-2 hidden" style="width: 20px; height: 20px; border-width: 2px;"></div>
                     </button>
@@ -157,18 +179,57 @@
 
         <!-- Error Message Container -->
         <div id="errorContainer" class="max-w-4xl mx-auto hidden mb-6 relative z-0">
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md" role="alert">
-                <p class="font-bold">Error</p>
-                <p id="errorText">Something went wrong.</p>
+            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm flex items-start" role="alert">
+                <i class="fas fa-exclamation-circle mt-1 mr-3 text-red-500"></i>
+                <div>
+                    <p class="font-bold">Search Failed</p>
+                    <div id="errorText" class="text-sm mt-1">Something went wrong.</div>
+                </div>
             </div>
         </div>
 
         <!-- Results Area -->
-        <div id="resultsArea" class="max-w-4xl mx-auto space-y-4 relative z-0">
+        <div id="resultsArea" class="max-w-4xl mx-auto space-y-4 relative z-0 pb-12">
             <!-- Results will be injected here -->
         </div>
 
     </div>
+
+    <!-- Footer with Contact Info -->
+    <footer class="bg-gray-900 text-white mt-auto border-t border-gray-800">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <!-- Brand Info -->
+                <div class="text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start mb-2">
+                        <i class="fas fa-plane-departure text-green-500 text-xl mr-2"></i>
+                        <span class="text-xl font-bold tracking-tight">Buraq Travel</span>
+                    </div>
+                    <p class="text-gray-400 text-sm max-w-xs">
+                        Finding you the best flights at the best prices. Secure, fast, and reliable booking services.
+                    </p>
+                </div>
+
+                <!-- Contact Action -->
+                <div class="flex flex-col items-center md:items-end">
+                    <p class="text-gray-300 text-sm font-semibold mb-2">Facing any issues?</p>
+                    <a href="https://wa.me/923306265440" target="_blank" class="group bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-green-900/50 flex items-center gap-3">
+                        <i class="fab fa-whatsapp text-2xl group-hover:scale-110 transition-transform"></i>
+                        <div class="text-left leading-tight">
+                            <span class="block text-[10px] text-green-100 uppercase tracking-wider">Chat with us</span>
+                            <span class="block text-sm">0330 6265440</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-6 text-center">
+                <p class="text-gray-500 text-xs">
+                    &copy; 2025 Buraq Travel. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
 
     <script>
         // --- PRODUCTION CONFIGURATION ---
@@ -178,10 +239,11 @@
         const BASE_URL = "https://api.amadeus.com";
         const AUTH_URL = `${BASE_URL}/v1/security/oauth2/token`;
         const SEARCH_URL_GET = `${BASE_URL}/v2/shopping/flight-offers`;
-        const SEARCH_URL_POST = `${BASE_URL}/v2/shopping/flight-offers`; // POST uses same endpoint base
+        const SEARCH_URL_POST = `${BASE_URL}/v2/shopping/flight-offers`; 
         const LOCATION_URL = `${BASE_URL}/v1/reference-data/locations`;
         
-        const PROXY_URL = "https://cors-anywhere.herokuapp.com/"; 
+        // CORSPROXY.IO - Working well
+        const PROXY_URL = "https://corsproxy.io/?"; 
 
         let currentFlights = []; 
         let cachedToken = null;
@@ -199,6 +261,12 @@
         document.getElementById('date').valueAsDate = tomorrow;
         document.getElementById('return-date').valueAsDate = dayAfter;
 
+        function clearInput(inputId, hiddenId) {
+            document.getElementById(inputId).value = '';
+            document.getElementById(hiddenId).value = '';
+            document.getElementById(inputId).focus();
+        }
+
         // --- TRIP TYPE LOGIC ---
         function setTripType(type) {
             currentTripType = type;
@@ -207,9 +275,9 @@
             ['oneway', 'roundtrip', 'multicity'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (t === type) {
-                    btn.className = "tab-active px-4 py-2 rounded-lg transition text-sm";
+                    btn.className = "tab-active px-4 py-2 rounded-md transition text-sm shadow-sm";
                 } else {
-                    btn.className = "tab-inactive px-4 py-2 rounded-lg transition text-sm";
+                    btn.className = "tab-inactive px-4 py-2 rounded-md transition text-sm hover:bg-gray-200";
                 }
             });
 
@@ -242,7 +310,7 @@
             }
         }
 
-        // --- AUTOCOMPLETE LOGIC (Reused) ---
+        // --- AUTOCOMPLETE LOGIC ---
         function setupAutocomplete(inputElement, listId, loadingId, hiddenInputId) {
             let debounceTimer;
             const listElement = document.getElementById(listId);
@@ -265,7 +333,7 @@
                         const locations = await searchLocations(keyword);
                         renderSuggestions(locations, listElement, inputElement, hiddenInput);
                     } catch (error) {
-                        console.error("Location search error", error);
+                         console.error("Location search error", error);
                     } finally {
                         if(loadingElement) loadingElement.classList.add('hidden');
                     }
@@ -286,7 +354,9 @@
             urlObj.searchParams.append('subType', 'AIRPORT,CITY');
             urlObj.searchParams.append('keyword', keyword);
             urlObj.searchParams.append('view', 'LIGHT');
-            const endpoint = useProxy ? PROXY_URL + urlObj.toString() : urlObj.toString();
+            
+            // Adjusted for corsproxy: encodeURIComponent is safer here
+            const endpoint = useProxy ? PROXY_URL + encodeURIComponent(urlObj.toString()) : urlObj.toString();
             const data = await fetchAndParse(endpoint, { method: 'GET', headers: { 'Authorization': `Bearer ${token}` } });
             return data.data || [];
         }
@@ -296,9 +366,15 @@
             if (locations.length === 0) { listElement.classList.add('hidden'); return; }
             locations.forEach(loc => {
                 const li = document.createElement('li');
-                li.className = "px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0 flex justify-between items-center transition-colors";
-                const icon = loc.subType === 'AIRPORT' ? '<i class="fas fa-plane text-gray-400 mr-2"></i>' : '<i class="fas fa-city text-gray-400 mr-2"></i>';
-                li.innerHTML = `<div class="flex flex-col"><span class="font-medium text-gray-800">${icon}${loc.name}</span><span class="text-xs text-gray-500 ml-6">${loc.address.cityName}, ${loc.address.countryName}</span></div><span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded">${loc.iataCode}</span>`;
+                li.className = "px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0 flex justify-between items-center transition-colors group";
+                const icon = loc.subType === 'AIRPORT' ? '<i class="fas fa-plane text-gray-400 group-hover:text-green-600 mr-2 transition-colors"></i>' : '<i class="fas fa-city text-gray-400 group-hover:text-green-600 mr-2 transition-colors"></i>';
+                li.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="font-bold text-gray-700 text-sm">${icon}${loc.name}</span>
+                        <span class="text-xs text-gray-500 ml-6">${loc.address.cityName}, ${loc.address.countryName}</span>
+                    </div>
+                    <span class="bg-gray-100 group-hover:bg-green-100 text-gray-600 group-hover:text-green-700 text-xs font-bold px-2 py-1 rounded transition-colors">${loc.iataCode}</span>
+                `;
                 li.addEventListener('click', () => {
                     inputElement.value = `${loc.name} (${loc.iataCode})`;
                     if(hiddenInput) hiddenInput.value = loc.iataCode;
@@ -320,47 +396,38 @@
             segmentCount++;
             const wrapper = document.getElementById('segments-wrapper');
             const div = document.createElement('div');
-            div.className = "grid grid-cols-1 md:grid-cols-3 gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200 relative";
+            div.className = "grid grid-cols-1 md:grid-cols-3 gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200 relative animate-fade-in";
             div.innerHTML = `
                 <div class="relative group">
-                    <label class="text-xs font-bold text-gray-500">From</label>
-                    <input type="text" id="seg-origin-input-${segmentCount}" placeholder="City" class="w-full p-2 border border-gray-300 rounded uppercase text-sm">
+                    <label class="text-xs font-bold text-gray-500 uppercase">From</label>
+                    <input type="text" id="seg-origin-input-${segmentCount}" placeholder="City" class="w-full p-2 border border-gray-300 rounded uppercase text-sm font-semibold">
                     <input type="hidden" id="seg-origin-${segmentCount}">
                     <ul id="seg-origin-suggestions-${segmentCount}" class="suggestions-list absolute w-full bg-white border border-gray-200 rounded-b-lg shadow-xl max-h-40 overflow-y-auto hidden z-50 mt-1"></ul>
                 </div>
                 <div class="relative group">
-                    <label class="text-xs font-bold text-gray-500">To</label>
-                    <input type="text" id="seg-dest-input-${segmentCount}" placeholder="City" class="w-full p-2 border border-gray-300 rounded uppercase text-sm">
+                    <label class="text-xs font-bold text-gray-500 uppercase">To</label>
+                    <input type="text" id="seg-dest-input-${segmentCount}" placeholder="City" class="w-full p-2 border border-gray-300 rounded uppercase text-sm font-semibold">
                     <input type="hidden" id="seg-dest-${segmentCount}">
                     <ul id="seg-dest-suggestions-${segmentCount}" class="suggestions-list absolute w-full bg-white border border-gray-200 rounded-b-lg shadow-xl max-h-40 overflow-y-auto hidden z-50 mt-1"></ul>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-500">Date</label>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Date</label>
                     <input type="date" id="seg-date-${segmentCount}" class="w-full p-2 border border-gray-300 rounded text-sm">
                 </div>
             `;
             wrapper.appendChild(div);
 
-            // Initialize autocomplete for new segments
-            setupAutocomplete(
-                document.getElementById(`seg-origin-input-${segmentCount}`), 
-                `seg-origin-suggestions-${segmentCount}`, 
-                null, 
-                `seg-origin-${segmentCount}`
-            );
-            setupAutocomplete(
-                document.getElementById(`seg-dest-input-${segmentCount}`), 
-                `seg-dest-suggestions-${segmentCount}`, 
-                null, 
-                `seg-dest-${segmentCount}`
-            );
+            setupAutocomplete(document.getElementById(`seg-origin-input-${segmentCount}`), `seg-origin-suggestions-${segmentCount}`, null, `seg-origin-${segmentCount}`);
+            setupAutocomplete(document.getElementById(`seg-dest-input-${segmentCount}`), `seg-dest-suggestions-${segmentCount}`, null, `seg-dest-${segmentCount}`);
         }
 
         // --- API TOKEN ---
         async function getAccessToken(useProxy) {
             const now = Date.now() / 1000;
             if (cachedToken && tokenExpiry > now) return cachedToken;
-            const endpoint = useProxy ? PROXY_URL + AUTH_URL : AUTH_URL;
+            
+            // Adjusted for corsproxy: encodeURIComponent is safer here
+            const endpoint = useProxy ? PROXY_URL + encodeURIComponent(AUTH_URL) : AUTH_URL;
             const params = new URLSearchParams();
             params.append('grant_type', 'client_credentials');
             params.append('client_id', API_KEY);
@@ -375,14 +442,16 @@
 
         async function fetchAndParse(url, options) {
             if (!options.headers) options.headers = {};
-            options.headers['X-Requested-With'] = 'XMLHttpRequest';
+            // NO X-Requested-With header to avoid 403
+            
             const response = await fetch(url, options);
             const text = await response.text();
-            if (text.includes("See /corsdemo")) throw new Error("PROXY_DEMO_REQUIRED");
+            
             try {
                 const data = JSON.parse(text);
                 if (!response.ok) {
                     if (response.status === 401) throw new Error("Unauthorized: API Keys might not be active yet.");
+                    if (response.status === 429) throw new Error("Too Many Requests: Please wait a moment.");
                     const detail = data.error_description || (data.errors && data.errors[0] ? (data.errors[0].detail || data.errors[0].title) : response.statusText);
                     throw new Error(detail);
                 }
@@ -390,6 +459,7 @@
             } catch (e) {
                 if (!response.ok) {
                     if (response.status === 401) throw new Error("Unauthorized: API Keys might not be active yet.");
+                    if (response.status === 403) throw new Error("Forbidden: The connection was blocked. Please try again.");
                     throw new Error(e.message || response.statusText);
                 }
                 throw e;
@@ -424,16 +494,19 @@
             }
         });
 
-        // 1. Standard Search (One Way / Round Trip) - Uses GET
+        // 1. Standard Search (One Way / Round Trip)
         async function searchStandard(token, useProxy) {
             let origin = document.getElementById('origin').value;
             let destination = document.getElementById('destination').value;
             
+            // Fallback for manual typing
             if (!origin) origin = document.getElementById('origin-input').value.toUpperCase().substring(0,3);
             if (!destination) destination = document.getElementById('destination-input').value.toUpperCase().substring(0,3);
             
             const date = document.getElementById('date').value;
             const returnDate = document.getElementById('return-date').value;
+
+            if(!origin || !destination) throw new Error("Please select valid cities.");
 
             const urlObj = new URL(SEARCH_URL_GET);
             urlObj.searchParams.append('originLocationCode', origin);
@@ -441,6 +514,7 @@
             urlObj.searchParams.append('departureDate', date);
             
             if (currentTripType === 'roundtrip') {
+                if(!returnDate) throw new Error("Return date is required for Round Trip.");
                 urlObj.searchParams.append('returnDate', returnDate);
             }
             
@@ -448,23 +522,23 @@
             urlObj.searchParams.append('max', '10');
             urlObj.searchParams.append('currencyCode', 'PKR');
 
-            const endpoint = useProxy ? PROXY_URL + urlObj.toString() : urlObj.toString();
+            // Adjusted for corsproxy: encodeURIComponent
+            const endpoint = useProxy ? PROXY_URL + encodeURIComponent(urlObj.toString()) : urlObj.toString();
             const data = await fetchAndParse(endpoint, { method: 'GET', headers: { 'Authorization': `Bearer ${token}` } });
             return data.data;
         }
 
-        // 2. Multi-City Search - Uses POST (Requires Body)
+        // 2. Multi-City Search
         async function searchMultiCity(token, useProxy) {
             const originDestinations = [];
             const wrapper = document.getElementById('segments-wrapper');
             const rows = wrapper.children;
 
             for (let i = 0; i < rows.length; i++) {
-                const idx = i + 1; // 1-based index for logic
+                const idx = i + 1;
                 let origin = document.getElementById(`seg-origin-${idx}`).value;
                 let dest = document.getElementById(`seg-dest-${idx}`).value;
                 
-                // Fallback to text input if hidden value empty
                 if(!origin) origin = document.getElementById(`seg-origin-input-${idx}`).value.toUpperCase().substring(0,3);
                 if(!dest) dest = document.getElementById(`seg-dest-input-${idx}`).value.toUpperCase().substring(0,3);
                 
@@ -489,7 +563,8 @@
                 sources: ["GDS"]
             };
 
-            const endpoint = useProxy ? PROXY_URL + SEARCH_URL_POST : SEARCH_URL_POST;
+            // Adjusted for corsproxy: encodeURIComponent
+            const endpoint = useProxy ? PROXY_URL + encodeURIComponent(SEARCH_URL_POST) : SEARCH_URL_POST;
             
             const data = await fetchAndParse(endpoint, { 
                 method: 'POST', 
@@ -509,9 +584,12 @@
             
             if (!flights || flights.length === 0) {
                 container.innerHTML = `
-                    <div class="bg-white p-8 rounded-lg shadow text-center">
-                        <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500">No flights found. Try different dates or routes.</p>
+                    <div class="bg-white p-12 rounded-xl shadow-md text-center border border-gray-100">
+                        <div class="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-search text-3xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-700 mb-2">No Flights Found</h3>
+                        <p class="text-gray-500">We couldn't find any flights for this route and date. Try changing the dates slightly.</p>
                     </div>`;
                 return;
             }
@@ -519,9 +597,8 @@
             flights.forEach((flight, index) => {
                 const currency = flight.price.currency;
                 const originalPrice = parseFloat(flight.price.total);
-                const finalPrice = (originalPrice * (1 - ACTIVE_DISCOUNT_PERCENTAGE)).toFixed(2);
+                const finalPrice = (originalPrice * (1 - ACTIVE_DISCOUNT_PERCENTAGE)).toFixed(0); 
 
-                // Build Segment HTML
                 let legsHtml = "";
                 const itineraries = flight.itineraries;
                 
@@ -541,31 +618,32 @@
                         legTitle = "Direct";
                     }
 
-                    // Get airline logo/name (simplified)
                     const airlines = { 'BA': 'British Airways', 'AA': 'American', 'EK': 'Emirates', 'QR': 'Qatar', 'PK': 'PIA', 'PA': 'Airblue', 'FZ': 'Flydubai', 'NL': 'Fly Jinnah', 'SV': 'Saudia', 'EY': 'Etihad', 'TK': 'Turkish' };
                     const airlineName = airlines[airlineCode] || airlineCode;
 
                     legsHtml += `
-                        <div class="mb-3 last:mb-0 border-b last:border-0 border-gray-100 pb-2 last:pb-0">
-                            <div class="flex justify-between items-center text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">
-                                <span>${legTitle}</span>
-                                <span>${airlineName}</span>
+                        <div class="mb-4 last:mb-0 border-b last:border-0 border-gray-100 pb-3 last:pb-0">
+                            <div class="flex justify-between items-center text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">
+                                <span class="bg-gray-100 px-2 py-0.5 rounded">${legTitle}</span>
+                                <span class="flex items-center"><i class="fas fa-plane mr-1"></i> ${airlineName}</span>
                             </div>
-                            <div class="flex items-center text-gray-700">
-                                <div class="text-center w-16">
-                                    <p class="text-lg font-bold">${firstSeg.departure.at.split('T')[1].substr(0,5)}</p>
-                                    <p class="text-xs text-gray-500">${firstSeg.departure.iataCode}</p>
+                            <div class="flex items-center text-gray-700 justify-between">
+                                <div class="text-center w-20">
+                                    <p class="text-xl font-black text-gray-800">${firstSeg.departure.at.split('T')[1].substr(0,5)}</p>
+                                    <p class="text-xs font-bold text-gray-500">${firstSeg.departure.iataCode}</p>
                                 </div>
-                                <div class="flex-1 px-4 flex flex-col items-center">
-                                    <p class="text-xs text-gray-400 mb-1">${duration}</p>
-                                    <div class="w-full h-px bg-gray-300 relative">
-                                        <i class="fas fa-plane absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <div class="flex-1 px-2 flex flex-col items-center">
+                                    <p class="text-[10px] text-gray-400 mb-1">${duration}</p>
+                                    <div class="w-full flex items-center">
+                                        <div class="h-[2px] bg-gray-200 flex-1"></div>
+                                        <i class="fas fa-plane text-gray-300 text-xs mx-2"></i>
+                                        <div class="h-[2px] bg-gray-200 flex-1"></div>
                                     </div>
-                                    <p class="text-xs text-green-600 mt-1">${segments.length > 1 ? (segments.length-1) + " Stop(s)" : "Non-stop"}</p>
+                                    <p class="text-[10px] text-green-600 font-bold mt-1">${segments.length > 1 ? (segments.length-1) + " Stop(s)" : "Non-stop"}</p>
                                 </div>
-                                <div class="text-center w-16">
-                                    <p class="text-lg font-bold">${lastSeg.arrival.at.split('T')[1].substr(0,5)}</p>
-                                    <p class="text-xs text-gray-500">${lastSeg.arrival.iataCode}</p>
+                                <div class="text-center w-20">
+                                    <p class="text-xl font-black text-gray-800">${lastSeg.arrival.at.split('T')[1].substr(0,5)}</p>
+                                    <p class="text-xs font-bold text-gray-500">${lastSeg.arrival.iataCode}</p>
                                 </div>
                             </div>
                         </div>
@@ -573,23 +651,24 @@
                 });
 
                 const card = `
-                    <div class="bg-white rounded-lg shadow p-6 flight-card transition-all duration-300 border-l-4 border-green-500">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-                            <div class="flex-1 w-full md:mr-6">
+                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg p-0 flight-card transition-all duration-300 overflow-hidden border border-gray-100">
+                        <div class="flex flex-col md:flex-row">
+                            <div class="flex-1 p-6">
                                 ${legsHtml}
                             </div>
-                            <div class="text-right pl-0 md:pl-6 border-l-0 md:border-l border-gray-100 w-full md:w-auto mt-4 md:mt-0 flex flex-row md:flex-col justify-between items-center md:items-end">
-                                <div>
-                                    <p class="text-xs text-red-400 line-through text-right">PKR ${originalPrice}</p>
-                                    <p class="text-2xl font-bold text-green-600 mb-1 text-right">
-                                        ${finalPrice} <span class="text-xs text-gray-500">${currency}</span>
+                            <div class="bg-gray-50 p-6 w-full md:w-48 flex flex-row md:flex-col justify-between items-center md:justify-center border-t md:border-t-0 md:border-l border-gray-100">
+                                <div class="text-right md:text-center mb-0 md:mb-4">
+                                    <p class="text-xs text-red-400 line-through font-medium">PKR ${Math.round(originalPrice).toLocaleString()}</p>
+                                    <p class="text-2xl font-black text-green-600 leading-none">
+                                        ${Math.round(finalPrice).toLocaleString()}
                                     </p>
-                                    <div class="bg-red-100 text-red-800 text-[10px] px-2 py-1 rounded-full font-bold animate-pulse text-center">
-                                        🔥 40% OFF
+                                    <p class="text-[10px] text-gray-500 font-bold mt-1">PKR</p>
+                                    <div class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded shadow-sm font-bold inline-block mt-1">
+                                        -40% OFF
                                     </div>
                                 </div>
-                                <button onclick="selectFlight(${index}, ${finalPrice})" class="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg text-sm transition cursor-pointer flex items-center justify-center gap-2 mt-0 md:mt-3">
-                                    <i class="fab fa-whatsapp"></i> Book
+                                <button onclick="selectFlight(${index}, ${finalPrice})" class="bg-green-600 hover:bg-green-700 text-white py-2.5 px-6 rounded-lg text-sm font-bold shadow-green-200 shadow-lg transition transform active:scale-95 flex items-center gap-2">
+                                    <i class="fab fa-whatsapp text-lg"></i> Book
                                 </button>
                             </div>
                         </div>
@@ -599,12 +678,13 @@
             });
         }
 
-        // --- WHATSAPP BOOKING ---
+        // --- UPDATED WHATSAPP BOOKING LOGIC ---
         function selectFlight(index, finalPrice) {
             const flight = currentFlights[index];
             const currency = flight.price.currency;
-            const originalPrice = flight.price.total;
-            const phoneNumber = "923430821414"; 
+            const originalPrice = Math.round(flight.price.total).toLocaleString();
+            const formattedFinal = Math.round(finalPrice).toLocaleString();
+            const phoneNumber = "923306265440"; 
 
             let flightDetailsMsg = "";
             flight.itineraries.forEach((it, idx) => {
@@ -613,22 +693,32 @@
                 const l = segs[segs.length - 1];
                 const type = currentTripType === 'roundtrip' ? (idx === 0 ? "Outbound" : "Return") : `Flight ${idx + 1}`;
                 
-                flightDetailsMsg += `\n🔸 *${type}:* ${f.carrierCode} ${f.number}\n` +
-                                    `   ${f.departure.iataCode} (${f.departure.at.split('T')[1].substr(0,5)}) ➡️ ${l.arrival.iataCode} (${l.arrival.at.split('T')[1].substr(0,5)})\n` +
+                flightDetailsMsg += `\n✈️ *${type}:* ${f.carrierCode} ${f.number}\n` +
+                                    `   From: ${f.departure.iataCode} (${f.departure.at.split('T')[1].substr(0,5)})\n` +
+                                    `   To:     ${l.arrival.iataCode} (${l.arrival.at.split('T')[1].substr(0,5)})\n` +
                                     `   Date: ${f.departure.at.split('T')[0]}\n`;
             });
 
-            const discountMsg = `\n🎟️ *Offer:* FLAT 40% OFF Applied\n💰 *Original:* ${originalPrice} ${currency}`;
+            const discountMsg = `\n🏷️ *Discount:* 40% OFF Applied\n❌ *Old Price:* ${originalPrice} ${currency}`;
             
             const message = 
-                `Hello Buraq Travel, I want to book this flight:\n` +
+                `*New Booking Request* 🎫\n` +
+                `------------------` +
                 `${flightDetailsMsg}` +
+                `------------------` +
                 `${discountMsg}\n` +
-                `✅ *Final Price:* ${finalPrice} ${currency}\n\n` +
-                `Please confirm details.`;
+                `✅ *Final Deal:* ${formattedFinal} ${currency}\n\n` +
+                `I would like to proceed with this booking.`;
 
             const encodedMessage = encodeURIComponent(message);
-            window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+            
+            // SMART LINK GENERATION:
+            // If on mobile device -> use api.whatsapp.com (opens app directly)
+            // If on desktop -> use web.whatsapp.com (forces web interface which handles text better)
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const baseUrl = isMobile ? 'https://api.whatsapp.com/send' : 'https://web.whatsapp.com/send';
+            
+            window.open(`${baseUrl}?phone=${phoneNumber}&text=${encodedMessage}`, '_blank');
         }
 
         // --- UTILS ---
@@ -648,13 +738,12 @@
             const container = document.getElementById('errorContainer');
             const text = document.getElementById('errorText');
             container.classList.remove('hidden');
-            text.textContent = msg;
-            if (msg === "PROXY_DEMO_REQUIRED") {
-                text.innerHTML = `<strong>Proxy Activation Required</strong><br>To use the test proxy server, you need to click the button below to grant temporary access:<br><br><a href='https://cors-anywhere.herokuapp.com/corsdemo' target='_blank' class='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block'>Activate Proxy Access</a><br><br><span class='text-sm'>After clicking "Request temporary access" on that page, come back here and click Search again.</span>`;
-            } else if (msg.toLowerCase().includes("unauthorized") || msg.toLowerCase().includes("active yet")) {
-                text.innerHTML = `<strong>Production Keys Not Active Yet</strong><br>It typically takes 30 minutes for new Production Keys to become active.`;
-            } else if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
-                 text.innerHTML = `<strong>Connection Blocked by Browser:</strong> <br>1. Ensure "Use Proxy" is checked above.<br>2. Try using the button above to activate the proxy.`;
+            
+            // Standard error message
+            if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+                 text.innerHTML = `<strong>Network Connection Failed</strong><br>1. Ensure "Use Proxy" is checked below the search button.<br>2. The search service might be momentarily busy. Try again.`;
+            } else {
+                text.textContent = msg;
             }
         }
 
